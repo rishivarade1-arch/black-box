@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "Report": {
+      "title": "Report",
+      "description": "Public infrastructure hazard incident report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "reporterId": { "type": "string", "maxLength": 128 },
+        "issue_type": { "type": "string", "maxLength": 64 },
+        "confidence": { "type": "number" },
+        "severity": { "type": "number" },
+        "priorityRank": { "type": "string", "maxLength": 32 },
+        "priorityScore": { "type": "number" },
+        "risk_reason": { "type": "string", "maxLength": 1000 },
+        "affected_group": { "type": "string", "maxLength": 64 },
+        "recommended_action": { "type": "string", "maxLength": 1000 },
+        "locationName": { "type": "string", "maxLength": 500 },
+        "address": { "type": "string", "maxLength": 500 },
+        "addressStatus": { "type": "string", "maxLength": 32 },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "note": { "type": "string", "maxLength": 1000 },
+        "note_english": { "type": "string", "maxLength": 1000 },
+        "note_language": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["Reported", "Assigned", "Fixed"] },
+        "timestamp": { "type": "string", "maxLength": 128 },
+        "repair_category": { "type": "string", "maxLength": 64 },
+        "estimated_cost_inr_min": { "type": "number" },
+        "estimated_cost_inr_max": { "type": "number" },
+        "estimated_repair_time": { "type": "string", "maxLength": 128 },
+        "crew_needed": { "type": "string", "maxLength": 256 },
+        "cost_basis": { "type": "string", "maxLength": 1000 },
+        "estimate_status": { "type": "string", "maxLength": 64 },
+        "hasSeparateImageDoc": { "type": "boolean" },
+        "is_override": { "type": "boolean" },
+        "verified_at": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["reporterId", "issue_type", "severity", "latitude", "longitude", "status"]
+    },
+    "ReportImage": {
+      "title": "ReportImage",
+      "description": "Compressed base64 image data stored separately to comply with 1MB Firestore doc limits",
+      "type": "object",
+      "properties": {
+        "reportId": { "type": "string", "maxLength": 128 },
+        "image": { "type": "string", "maxLength": 450000 },
+        "after_image": { "type": "string", "maxLength": 450000 }
+      },
+      "required": ["reportId"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Authorized municipal administrator email or uid",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 256 },
+        "role": { "type": "string", "maxLength": 64 },
+        "authority": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "Civic infrastructure incident queue"
+    },
+    "/reportImages/{reportId}": {
+      "schema": { "$ref": "#/entities/ReportImage" },
+      "description": "Compressed image payloads for reported hazards and verified repairs"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "List of authorized administrator emails or UIDs"
+    }
+  }
+}

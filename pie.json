@@ -1,0 +1,13 @@
+{
+  "name": "roadwatch-ai",
+  "runtime": "node",
+  "build": {
+    "command": "npm run build"
+  },
+  "run": {
+    "command": "npm start"
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

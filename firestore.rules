@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default Deny All Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSeedAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email != null &&
+        request.auth.token.email.lower() == 'rishivarade1@gmail.com';
+    }
+
+    function isAdmin() {
+      return isSeedAdmin() || (
+        isSignedIn() && (
+          (request.auth.token.email != null && exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()))) ||
+          exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        )
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidReport(data) {
+      return data.reporterId is string &&
+        data.reporterId.size() <= 128 &&
+        data.issue_type is string &&
+        data.issue_type.size() <= 64 &&
+        data.severity is number &&
+        data.severity >= 1 && data.severity <= 10 &&
+        data.latitude is number &&
+        data.longitude is number &&
+        data.status in ['Reported', 'Assigned', 'Fixed'];
+    }
+
+    function isValidReportImage(data) {
+      return data.reportId is string &&
+        data.reportId.size() <= 128 &&
+        (!('image' in data) || (data.image is string && data.image.size() <= 450000)) &&
+        (!('after_image' in data) || (data.after_image is string && data.after_image.size() <= 450000));
+    }
+
+    // 1. Admins collection: Only admins or seed admin can read and manage admins;
+    // initial bootstrap seed allowed for designated admin rishivarade1@gmail.com
+    match /admins/{adminId} {
+      allow read: if isAdmin() || (adminId == 'rishivarade1@gmail.com');
+      allow write: if isAdmin() || isSeedAdmin() || (adminId == 'rishivarade1@gmail.com' && request.resource.data.email.lower() == 'rishivarade1@gmail.com');
+    }
+
+    // 2. Reports collection:
+    // - Anyone signed in (including anonymous) can create a report with their own reporterId
+    // - Citizens can read only their own reports
+    // - Only admins can read all reports, update status or verification, and delete
+    match /reports/{reportId} {
+      allow get: if isValidId(reportId) && (isAdmin() || (isSignedIn() && resource.data.reporterId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && resource.data.reporterId == request.auth.uid);
+      allow create: if isValidId(reportId) &&
+        isSignedIn() &&
+        request.resource.data.reporterId == request.auth.uid &&
+        isValidReport(request.resource.data);
+      allow update: if isValidId(reportId) && isAdmin();
+      allow delete: if isValidId(reportId) && isAdmin();
+    }
+
+    // 3. ReportImages collection:
+    // - Stored in separate collection to stay well under 1MB Firestore document limits
+    // - Max image string length enforced (<= 450000 characters, under ~320 KB)
+    match /reportImages/{reportId} {
+      allow get: if isValidId(reportId) && (
+        isAdmin() ||
+        (isSignedIn() && get(/databases/$(database)/documents/reports/$(reportId)).data.reporterId == request.auth.uid)
+      );
+      allow list: if isAdmin();
+      allow create: if isValidId(reportId) &&
+        isSignedIn() &&
+        isValidReportImage(request.resource.data);
+      allow update: if isValidId(reportId) && (
+        isAdmin() ||
+        (isSignedIn() && get(/databases/$(database)/documents/reports/$(reportId)).data.reporterId == request.auth.uid && isValidReportImage(request.resource.data))
+      );
+      allow delete: if isValidId(reportId) && isAdmin();
+    }
+
+    // Connection ping test document
+    match /_connection_test/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

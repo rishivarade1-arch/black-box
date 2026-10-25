@@ -1,0 +1,16 @@
+services:
+  roadwatch-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: roadwatch-ai
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+    env_file:
+      - .env
