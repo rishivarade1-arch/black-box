@@ -2,15 +2,6 @@
 
 **AI-powered public infrastructure monitoring, built with Gemma 4.**
 
-Built for **Hactoberfest '26** | Problem Statement: *AI-Powered Public Infrastructure Monitoring*
-
-> Citizens report road hazards with a photo and GPS. Gemma 4 detects the issue, rates its severity, and ranks reports on a live map so officials fix the most urgent problems first.
-
-**Live demo:** [add your Vercel link here]
-**Demo video:** [add link here]
-
----
-
 ## The Problem
 
 Public infrastructure issues such as potholes, damaged roads, broken streetlights, and overflowing drains are often reported late or go unnoticed. This leads to safety risks and inefficient maintenance, and authorities have no quick way to know which problems are the most urgent.
@@ -124,13 +115,6 @@ roadwatch-ai/
 `-- .env.example
 ```
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18 or newer
-- A Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
-
 ### Run locally
 
 ```bash
@@ -151,24 +135,6 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-### Deploy to Vercel
-
-1. Push this repository to GitHub.
-2. On [vercel.com](https://vercel.com), choose **Add New > Project** and import the repo. Vercel detects Vite automatically.
-3. Under **Environment Variables**, add `GEMINI_API_KEY` with your key.
-4. Click **Deploy**.
-5. Visit `/api/health` on your deployed URL. It should show `"geminiKeyConfigured": true`.
-
-Redeploy after changing environment variables.
-
-## Environment Variables
-
-| Variable | Description |
-|---|---|
-| `GEMINI_API_KEY` | API key for the Gemini API (required for real Gemma 4 analysis) |
-
-If the key is missing, the app returns a placeholder result so the interface still loads. Always check `/api/health` before a demo.
-
 ## Limitations
 
 - Reports are stored in each user's browser, so they are not shared across devices.
@@ -186,20 +152,5 @@ If the key is missing, the app returns a placeholder result so the interface sti
 - Bounding boxes drawn on detected problems
 - Integration with municipal complaint systems
 
-## Team
-
-| Name | Role |
-|---|---|
-| [Name] | [Role] |
-| [Name] | [Role] |
-| [Name] | [Role] |
-
-## Acknowledgements
-
-- [Gemma](https://ai.google.dev/gemma) by Google
-- [Leaflet](https://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org)
-- [Nominatim](https://nominatim.org) for reverse geocoding
-
-## License
 
 [Add your license here, for example MIT]
